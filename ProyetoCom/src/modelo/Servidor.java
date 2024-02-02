@@ -68,7 +68,9 @@ public class Servidor {
 			serverSocket = new ServerSocket();
 			
 			System.out.println("Servidor: Realizando el enlace al socket");
-			serverSocket.bind(new InetSocketAddress("localhost", 5555));
+			serverSocket.bind(new InetSocketAddress(ipServidor, puerto));
+			
+			System.out.println("---------------------------------------------------------");
 			
 			while(true) {
 				InputStream is;
@@ -80,35 +82,64 @@ public class Servidor {
 				
 				is.read(mensaje);
 				//System.out.println("Servidor: "+ new String(mensaje));
-				System.out.println(new String(mensaje));
+				String strMensaje = new String(mensaje);
+				String IpSender = obtenerIP(strMensaje);
+				//System.out.println("Ip del sender: "+IpSender);
+				
+				//System.out.println("Enviando el mensaje a: ");
+				for(String ip : usuarios) {
+					//System.out.println("Ip: "+ip);
+					
+					if(!ip.equals(IpSender)) {
+						//System.out.println(ip);
+						Cliente c =new Cliente(obtenerNombre(strMensaje), ip, ip,5556);
+						c.enviarMensaje(strMensaje);
+					}
+				}
+				
+				System.out.println(limpliarCadena(strMensaje));
 				
 				//String x = "Mensaje Leido";
 				//os.write(x.getBytes());
 				
 				is.close();
 				os.close();
+				mensaje = new byte[MAX];
 			}
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 	}
+	
 	static String obtenerIP(String input) {
-        // Patrón de expresión regular para encontrar una dirección IP en el formato especificado
         String patron = "(\\d+\\.\\d+\\.\\d+\\.\\d+)@";
 
-        // Crear un objeto Pattern con el patrón
         Pattern pattern = Pattern.compile(patron);
-
-        // Crear un objeto Matcher y buscar coincidencias en la cadena de entrada
         Matcher matcher = pattern.matcher(input);
 
-        // Verificar si se encontró una coincidencia y devolver la IP
         if (matcher.find()) {
             return matcher.group(1);
         } else {
-            // En caso de que no se encuentre una IP, puedes manejarlo de acuerdo a tus necesidades
             return "No se encontró una dirección IP";
         }
     }
+	
+	static String limpliarCadena(String input) {
+        String patron = ".*?\\@";
+        return input.replaceFirst(patron, "");
+    }
+	
+	static String obtenerNombre(String input) {
+        String patron = "\\[(.*?)\\]";
+        
+        Pattern pattern = Pattern.compile(patron);
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return ""; 
+        }
+    }
+
 }

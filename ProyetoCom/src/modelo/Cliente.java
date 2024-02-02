@@ -78,7 +78,7 @@ public class Cliente {
 			
 			mensaje = ipUsuario+"@["+usuario+"]: " + mensaje;
 			
-			System.out.print(" [<!]");
+			//System.out.print(" [<!]");
 			os.write(mensaje.getBytes());
 			clienteSocket.close();
 			
