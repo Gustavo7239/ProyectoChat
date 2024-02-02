@@ -88,15 +88,14 @@ public class Servidor {
 				
 				//System.out.println("Enviando el mensaje a: ");
 				for(String ip : usuarios) {
-					//System.out.println("Ip: "+ip);
+					System.out.println("Ip: "+ip);
 					
-					if(!ip.equals(IpSender)) {
+					if(!ip.equals(IpSender) && !ip.equals(ipServidor)) {
 						//System.out.println(ip);
-						Cliente c =new Cliente(obtenerNombre(strMensaje), ip, ip,5556);
-						c.enviarMensaje(strMensaje);
+						Cliente c =new Cliente(obtenerNombre(strMensaje), ip, ip,puertoOpuesto());
+						c.enviarMensaje(obtenerTexto(strMensaje));
 					}
 				}
-				
 				System.out.println(limpliarCadena(strMensaje));
 				
 				//String x = "Mensaje Leido";
@@ -111,7 +110,7 @@ public class Servidor {
 		}
 	}
 	
-	static String obtenerIP(String input) {
+	public String obtenerIP(String input) {
         String patron = "(\\d+\\.\\d+\\.\\d+\\.\\d+)@";
 
         Pattern pattern = Pattern.compile(patron);
@@ -124,12 +123,17 @@ public class Servidor {
         }
     }
 	
-	static String limpliarCadena(String input) {
+	public String limpliarCadena(String input) {
         String patron = ".*?\\@";
         return input.replaceFirst(patron, "");
     }
 	
-	static String obtenerNombre(String input) {
+	public String obtenerTexto(String input) {
+        String patron = ".*?\\: ";
+        return input.replaceFirst(patron, "");
+    }
+	
+	public String obtenerNombre(String input) {
         String patron = "\\[(.*?)\\]";
         
         Pattern pattern = Pattern.compile(patron);
@@ -142,4 +146,13 @@ public class Servidor {
         }
     }
 
+	public int puertoOpuesto() {
+		int valor = 0;
+		
+		if(puerto == 5555) valor = 5556;
+		else if (puerto == 5556) valor = 5555;
+		//else valor = puerto+1;
+		
+		return valor;
+	}
 }
