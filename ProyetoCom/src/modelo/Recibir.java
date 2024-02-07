@@ -10,20 +10,20 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Servidor {
+public class Recibir implements Runnable{
 	private String ipServidor;
 	private int puerto;
-	private List<String> usuarios; //Lista con las ip de todos los usuarios
+	private Mensaje mensaje;
 	
-	public Servidor() {
+	public Recibir() {
 		super();
 	}
 
-	public Servidor(String ipServidor, int puerto, List<String> usuarios) {
+	public Recibir(String ipServidor, int puerto, Mensaje mensaje) {
 		super();
 		this.ipServidor = ipServidor;
 		this.puerto = puerto;
-		this.usuarios = usuarios;
+		this.mensaje = mensaje;
 	}
 
 	public String getIpServidor() {
@@ -42,20 +42,16 @@ public class Servidor {
 		this.puerto = puerto;
 	}
 
-	public List<String> getUsuarios() {
-		return usuarios;
+	public Mensaje getMensaje() {
+		return mensaje;
 	}
 
-	public void setUsuarios(List<String> usuarios) {
-		this.usuarios = usuarios;
+	public void setMensaje(Mensaje mensaje) {
+		this.mensaje = mensaje;
 	}
 
 	@Override
-	public String toString() {
-		return "Servidor [ipServidor=" + ipServidor + ", puerto=" + puerto + ", usuarios=" + usuarios + "]";
-	}
-	
-	public void encender() {
+	public void run() {
 		Socket socket;
 		ServerSocket serverSocket;
 		
@@ -64,50 +60,44 @@ public class Servidor {
 		
 		
 		try {
-			System.out.println("Servidor: Creando el socket");
+			//System.out.println("Servidor: Creando el socket");
 			serverSocket = new ServerSocket();
+			System.out.print(".");
 			
-			System.out.println("Servidor: Realizando el enlace al socket");
+			//System.out.println("Servidor: Realizando el enlace al socket");
 			serverSocket.bind(new InetSocketAddress(ipServidor, puerto));
-			
-			System.out.println("---------------------------------------------------------");
+			System.out.println(".");
 			
 			while(true) {
 				InputStream is;
-				OutputStream os;
-				
-				socket= serverSocket.accept();
-				is= socket.getInputStream();
-				os= socket.getOutputStream();
-				
-				is.read(mensaje);
-				//System.out.println("Servidor: "+ new String(mensaje));
-				String strMensaje = new String(mensaje);
-				String IpSender = obtenerIP(strMensaje);
-				//System.out.println("Ip del sender: "+IpSender);
-				
-				//System.out.println("Enviando el mensaje a: ");
-				for(String ip : usuarios) {
-					//System.out.println("Ip: "+ip);
-					
-					if(!ip.equals(IpSender) || !ip.equals(ipServidor) || !IpSender.equals(ipServidor) ) {
-						System.out.println(ip+" - "+IpSender+" - "+ipServidor);
-						Cliente c =new Cliente(obtenerNombre(strMensaje), ip, ip,puertoOpuesto());
-						c.enviarMensaje(obtenerTexto(strMensaje));
-					}
-				}
-				System.out.println(limpliarCadena(strMensaje));
-				
-				//String x = "Mensaje Leido";
-				//os.write(x.getBytes());
-				
-				is.close();
-				os.close();
-				mensaje = new byte[MAX];
+
+	            socket = serverSocket.accept();
+	            is = socket.getInputStream();
+	            is.read(mensaje);
+	            
+	            String strMensaje = new String(mensaje);
+	            
+	            Mensaje mensajeObj = new Mensaje(
+	                    obtenerIP(strMensaje),
+	                    obtenerNombre(strMensaje),
+	                    obtenerTexto(strMensaje));
+
+	            is.close();
+	            mensaje = new byte[MAX];
+	            
+	            System.out.println(mensajeObj.msgRecibir());
+	            
+	            this.mensaje.modMensaje(mensajeObj);
+	            
+	            System.out.print("-");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void encender() {
+		
 	}
 	
 	public String obtenerIP(String input) {
@@ -146,7 +136,7 @@ public class Servidor {
         }
     }
 
-	public int puertoOpuesto() {
+	public int puertoOpuesto(int puerto) {
 		int valor = 0;
 		
 		if(puerto == 5555) valor = 5556;
@@ -155,4 +145,5 @@ public class Servidor {
 		
 		return valor;
 	}
+
 }
