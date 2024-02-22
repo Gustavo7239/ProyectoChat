@@ -38,7 +38,19 @@ public class Client {
 			clientSocket = new Socket();
 			
 			System.out.println("[Cliente]: Enlazando al socket");
-			clientSocket.connect(new InetSocketAddress(serverIp, serverPort));
+			
+			while(!clientSocket.isConnected()) {
+				try {
+					clientSocket.connect(new InetSocketAddress(serverIp, serverPort));
+				}
+				catch (Exception e) {
+				}
+				finally {
+					System.out.print(".");
+				}
+				Thread.sleep(100);
+			} 
+			System.out.println();
 			
 			System.out.println("[Cliente]: Iniciando las conexiones Stream.");
 			is= clientSocket.getInputStream();
@@ -56,6 +68,10 @@ public class Client {
 		while(!receivedQueue.isEmpty()) {
 			v.printMsg(receivedQueue.poll());
 		}
+	}
+	
+	public void addReceivedQueue(Message m) {
+		receivedQueue.offer(m);
 	}
 
 	

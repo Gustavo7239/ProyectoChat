@@ -9,12 +9,12 @@ import java.util.Scanner;
 import modelo.Mensaje;
 
 public class Cliente {
-    private static final String IP_SERVIDOR = "127.0.0.1"; // Reemplaza con la dirección IP del servidor
+    private static final String IP_SERVIDOR = "localhost"; // Reemplaza con la dirección IP del servidor
     private static final int PUERTO_ESCUCHA = 5556;
     private static final int PUERTO_EMISION = 5555;
 
     private String usuario = "PC2";
-    private String miIp = "localhost";
+    private String miIp = "10.10.0.186";
     
     public static void main(String[] args) {
         Cliente cliente = new Cliente();
@@ -46,7 +46,7 @@ public class Cliente {
 
             while (true) {
                 String mensajeRecibido = scanner.nextLine();
-                //System.out.println("Mensaje del servidor: " + mensajeRecibido);
+                System.out.println("Mensaje del servidor: " + mensajeRecibido);
             }
         } catch (IOException e) {
             e.printStackTrace();
